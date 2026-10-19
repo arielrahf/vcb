@@ -1,0 +1,7 @@
+{
+	"generator": "dense",
+	"bundle": {
+		"require_mode": "path"
+	},
+	"rules": []
+}
