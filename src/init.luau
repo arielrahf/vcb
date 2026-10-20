@@ -1,4 +1,7 @@
 
+-- VCB Final UI v1.0
+-- UI demo: tidak mengubah sistem internal voice chat Roblox.
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 
@@ -7,144 +10,222 @@ assert(player, "VCB: LocalPlayer tidak tersedia")
 
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Hapus UI lama jika script dijalankan ulang
-local oldGui = playerGui:FindFirstChild("VCBTestUI")
+-- Bersihkan versi sebelumnya
+local oldGui = playerGui:FindFirstChild("VCBFinalUI")
 if oldGui then
     oldGui:Destroy()
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "VCBTestUI"
+gui.Name = "VCBFinalUI"
 gui.ResetOnSpawn = false
 gui.DisplayOrder = 999
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent = playerGui
 
-local panel = Instance.new("Frame")
-panel.Name = "VCBPanel"
-panel.Size = UDim2.fromOffset(260, 112)
-panel.Position = UDim2.new(0.5, -130, 0.35, 0)
-panel.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
-panel.BorderSizePixel = 0
-panel.Active = true
-panel.Parent = gui
+local COLORS = {
+    panel = Color3.fromRGB(24, 24, 28),
+    button = Color3.fromRGB(65, 90, 150),
+    buttonHover = Color3.fromRGB(80, 108, 174),
+    text = Color3.fromRGB(255, 255, 255),
+    stroke = Color3.fromRGB(235, 235, 235),
+}
 
-local panelCorner = Instance.new("UICorner")
-panelCorner.CornerRadius = UDim.new(0, 8)
-panelCorner.Parent = panel
+local function create(className, properties, parent)
+    local object = Instance.new(className)
 
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(235, 235, 235)
-stroke.Transparency = 0.5
-stroke.Thickness = 1
-stroke.Parent = panel
+    for property, value in pairs(properties or {}) do
+        object[property] = value
+    end
 
-local title = Instance.new("TextLabel")
-title.Name = "Title"
-title.Size = UDim2.new(1, -48, 0, 36)
-title.Position = UDim2.fromOffset(12, 0)
-title.BackgroundTransparency = 1
-title.Font = Enum.Font.GothamBold
-title.Text = "VCB"
-title.TextSize = 15
-title.TextColor3 = Color3.new(1, 1, 1)
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = panel
+    object.Parent = parent
+    return object
+end
 
-local close = Instance.new("TextButton")
-close.Name = "CloseButton"
-close.Size = UDim2.fromOffset(32, 28)
-close.Position = UDim2.new(1, -36, 0, 4)
-close.BackgroundTransparency = 1
-close.Font = Enum.Font.GothamBold
-close.Text = "X"
-close.TextSize = 14
-close.TextColor3 = Color3.new(1, 1, 1)
-close.Parent = panel
+local function round(object, radius)
+    create("UICorner", {
+        CornerRadius = UDim.new(0, radius),
+    }, object)
+end
 
-close.Activated:Connect(function()
-    gui:Destroy()
+-- Panel utama
+local panel = create("Frame", {
+    Name = "VCBPanel",
+    Size = UDim2.fromOffset(260, 112),
+    Position = UDim2.new(0.5, -130, 0.35, 0),
+    BackgroundColor3 = COLORS.panel,
+    BorderSizePixel = 0,
+    Active = true,
+    Visible = true,
+}, gui)
+
+round(panel, 8)
+
+create("UIStroke", {
+    Color = COLORS.stroke,
+    Transparency = 0.5,
+    Thickness = 1,
+}, panel)
+
+-- Judul
+local title = create("TextLabel", {
+    Name = "Title",
+    Position = UDim2.fromOffset(12, 0),
+    Size = UDim2.new(1, -54, 0, 36),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.GothamBold,
+    Text = "VCB",
+    TextSize = 15,
+    TextColor3 = COLORS.text,
+    TextXAlignment = Enum.TextXAlignment.Left,
+}, panel)
+
+-- Tombol tutup
+local closeButton = create("TextButton", {
+    Name = "CloseButton",
+    Size = UDim2.fromOffset(32, 28),
+    Position = UDim2.new(1, -36, 0, 4),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.GothamBold,
+    Text = "X",
+    TextSize = 14,
+    TextColor3 = COLORS.text,
+}, panel)
+
+-- Tombol utama
+local buttonFrame = create("Frame", {
+    Name = "BypassButtonFrame",
+    Position = UDim2.fromOffset(16, 48),
+    Size = UDim2.new(1, -32, 0, 46),
+    BackgroundColor3 = Color3.fromRGB(35, 35, 42),
+    BorderSizePixel = 0,
+}, panel)
+
+round(buttonFrame, 8)
+
+local bypassButton = create("TextButton", {
+    Name = "BypassButton",
+    Position = UDim2.fromOffset(2, 2),
+    Size = UDim2.new(1, -4, 1, -4),
+    BackgroundColor3 = COLORS.button,
+    BorderSizePixel = 0,
+    AutoButtonColor = true,
+    Font = Enum.Font.GothamBold,
+    Text = "BYPASS",
+    TextSize = 14,
+    TextColor3 = COLORS.text,
+}, buttonFrame)
+
+round(bypassButton, 6)
+
+-- Tombol mini untuk membuka panel kembali
+local reopenButton = create("TextButton", {
+    Name = "ReopenButton",
+    Size = UDim2.fromOffset(46, 46),
+    Position = UDim2.new(0, 18, 0.5, -23),
+    BackgroundColor3 = COLORS.panel,
+    BorderSizePixel = 0,
+    Font = Enum.Font.GothamBold,
+    Text = "VCB",
+    TextSize = 13,
+    TextColor3 = COLORS.text,
+    Visible = false,
+}, gui)
+
+round(reopenButton, 10)
+
+create("UIStroke", {
+    Color = COLORS.stroke,
+    Transparency = 0.5,
+    Thickness = 1,
+}, reopenButton)
+
+closeButton.Activated:Connect(function()
+    panel.Visible = false
+    reopenButton.Visible = true
 end)
 
--- Area judul untuk menggeser panel dengan mouse atau sentuhan
+reopenButton.Activated:Connect(function()
+    panel.Visible = true
+    reopenButton.Visible = false
+end)
+
+-- Feedback tombol demo
+local busy = false
+
+bypassButton.Activated:Connect(function()
+    if busy then
+        return
+    end
+
+    busy = true
+    bypassButton.Text = "UI TEST OK"
+    bypassButton.BackgroundColor3 = COLORS.buttonHover
+
+    task.delay(1.2, function()
+        if bypassButton.Parent then
+            bypassButton.Text = "BYPASS"
+            bypassButton.BackgroundColor3 = COLORS.button
+        end
+
+        busy = false
+    end)
+end)
+
+-- Geser panel melalui area judul
 local dragging = false
-local dragStart
-local startPosition
-local dragInput
+local dragStart = nil
+local startPosition = nil
+local activeTouch = nil
 
 title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
+    local isMouse = input.UserInputType
+        == Enum.UserInputType.MouseButton1
+    local isTouch = input.UserInputType
+        == Enum.UserInputType.Touch
+
+    if isMouse or isTouch then
         dragging = true
         dragStart = input.Position
         startPosition = panel.Position
+        activeTouch = isTouch and input or nil
 
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-title.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
+        if isMouse then
+            activeTouch = nil
+        end
     end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input == dragInput
-        or input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
+    if not dragging then
+        return
+    end
 
-        local delta = input.Position - dragStart
-        panel.Position = UDim2.new(
-            startPosition.X.Scale,
-            startPosition.X.Offset + delta.X,
-            startPosition.Y.Scale,
-            startPosition.Y.Offset + delta.Y
-        )
+    local isMouseMove = input.UserInputType
+        == Enum.UserInputType.MouseMovement
+    local isMatchingTouch = activeTouch ~= nil
+        and input == activeTouch
+
+    if not isMouseMove and not isMatchingTouch then
+        return
+    end
+
+    local delta = input.Position - dragStart
+
+    panel.Position = UDim2.new(
+        startPosition.X.Scale,
+        startPosition.X.Offset + delta.X,
+        startPosition.Y.Scale,
+        startPosition.Y.Offset + delta.Y
+    )
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or (activeTouch and input == activeTouch) then
+        dragging = false
+        activeTouch = nil
     end
 end)
 
-local frame = Instance.new("Frame")
-frame.Name = "BypassButtonFrame"
-frame.Position = UDim2.fromOffset(16, 48)
-frame.Size = UDim2.new(1, -32, 0, 46)
-frame.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
-frame.BorderSizePixel = 0
-frame.Parent = panel
-
-local frameCorner = Instance.new("UICorner")
-frameCorner.CornerRadius = UDim.new(0, 8)
-frameCorner.Parent = frame
-
-local button = Instance.new("TextButton")
-button.Name = "BypassButton"
-button.Size = UDim2.new(1, -4, 1, -4)
-button.Position = UDim2.fromOffset(2, 2)
-button.BackgroundColor3 = Color3.fromRGB(65, 90, 150)
-button.BorderSizePixel = 0
-button.Font = Enum.Font.GothamBold
-button.Text = "BYPASS"
-button.TextSize = 14
-button.TextColor3 = Color3.new(1, 1, 1)
-button.Parent = frame
-
-local buttonCorner = Instance.new("UICorner")
-buttonCorner.CornerRadius = UDim.new(0, 6)
-buttonCorner.Parent = button
-
-button.Activated:Connect(function()
-    button.Text = "UI TEST OK"
-
-    task.delay(1.2, function()
-        if button.Parent then
-            button.Text = "BYPASS"
-        end
-    end)
-end)
-
-print("[VCB] UI berhasil dibuat")
+print("[VCB] Final UI berhasil dibuat")
