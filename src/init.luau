@@ -1,4 +1,3 @@
-```lua
 -- VCB Final UI V2
 -- UI preview only; tidak memodifikasi sistem voice chat Roblox.
 
@@ -316,4 +315,3 @@ UserInputService.InputEnded:Connect(function(input)
 end)
 
 print("[VCB] Final UI V2 berhasil dibuat")
-```
