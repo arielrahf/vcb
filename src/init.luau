@@ -1,16 +1,16 @@
-
--- VCB Final UI v1.0
--- UI demo: tidak mengubah sistem internal voice chat Roblox.
+```lua
+-- VCB Final UI V2
+-- UI preview only; tidak memodifikasi sistem voice chat Roblox.
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 assert(player, "VCB: LocalPlayer tidak tersedia")
 
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Bersihkan versi sebelumnya
 local oldGui = playerGui:FindFirstChild("VCBFinalUI")
 if oldGui then
     oldGui:Destroy()
@@ -25,10 +25,13 @@ gui.Parent = playerGui
 
 local COLORS = {
     panel = Color3.fromRGB(24, 24, 28),
-    button = Color3.fromRGB(65, 90, 150),
-    buttonHover = Color3.fromRGB(80, 108, 174),
+    surface = Color3.fromRGB(38, 38, 45),
+    accent = Color3.fromRGB(65, 90, 150),
+    accentHover = Color3.fromRGB(80, 108, 174),
     text = Color3.fromRGB(255, 255, 255),
-    stroke = Color3.fromRGB(235, 235, 235),
+    subtle = Color3.fromRGB(165, 165, 175),
+    red = Color3.fromRGB(190, 65, 75),
+    green = Color3.fromRGB(65, 155, 120),
 }
 
 local function create(className, properties, parent)
@@ -48,98 +51,158 @@ local function round(object, radius)
     }, object)
 end
 
+local function stroke(object, transparency)
+    create("UIStroke", {
+        Color = COLORS.text,
+        Transparency = transparency or 0.85,
+        Thickness = 1,
+    }, object)
+end
+
+local function animate(object, properties)
+    TweenService:Create(
+        object,
+        TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        properties
+    ):Play()
+end
+
 -- Panel utama
 local panel = create("Frame", {
     Name = "VCBPanel",
-    Size = UDim2.fromOffset(260, 112),
-    Position = UDim2.new(0.5, -130, 0.35, 0),
+    Size = UDim2.fromOffset(280, 190),
+    Position = UDim2.new(0.5, -140, 0.3, 0),
     BackgroundColor3 = COLORS.panel,
     BorderSizePixel = 0,
     Active = true,
-    Visible = true,
 }, gui)
 
-round(panel, 8)
+round(panel, 10)
+stroke(panel, 0.65)
 
-create("UIStroke", {
-    Color = COLORS.stroke,
-    Transparency = 0.5,
-    Thickness = 1,
+-- Title bar
+local titleBar = create("Frame", {
+    Name = "TitleBar",
+    Size = UDim2.new(1, 0, 0, 38),
+    BackgroundTransparency = 1,
+    Active = true,
 }, panel)
 
--- Judul
 local title = create("TextLabel", {
     Name = "Title",
-    Position = UDim2.fromOffset(12, 0),
-    Size = UDim2.new(1, -54, 0, 36),
+    Position = UDim2.fromOffset(13, 0),
+    Size = UDim2.new(1, -55, 1, 0),
     BackgroundTransparency = 1,
     Font = Enum.Font.GothamBold,
-    Text = "VCB",
-    TextSize = 15,
+    Text = "VC BYPASSER",
+    TextSize = 14,
     TextColor3 = COLORS.text,
     TextXAlignment = Enum.TextXAlignment.Left,
-}, panel)
+}, titleBar)
 
--- Tombol tutup
 local closeButton = create("TextButton", {
     Name = "CloseButton",
-    Size = UDim2.fromOffset(32, 28),
-    Position = UDim2.new(1, -36, 0, 4),
+    Size = UDim2.fromOffset(30, 28),
+    Position = UDim2.new(1, -34, 0, 5),
     BackgroundTransparency = 1,
     Font = Enum.Font.GothamBold,
     Text = "X",
     TextSize = 14,
     TextColor3 = COLORS.text,
+}, titleBar)
+
+-- Pemilih versi: V2 saja
+local versionLabel = create("TextLabel", {
+    Position = UDim2.fromOffset(14, 43),
+    Size = UDim2.new(1, -28, 0, 18),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.GothamMedium,
+    Text = "VERSION",
+    TextSize = 10,
+    TextColor3 = COLORS.subtle,
+    TextXAlignment = Enum.TextXAlignment.Left,
 }, panel)
 
--- Tombol utama
-local buttonFrame = create("Frame", {
-    Name = "BypassButtonFrame",
-    Position = UDim2.fromOffset(16, 48),
-    Size = UDim2.new(1, -32, 0, 46),
-    BackgroundColor3 = Color3.fromRGB(35, 35, 42),
+local versionButton = create("TextButton", {
+    Name = "VersionV2",
+    Position = UDim2.fromOffset(14, 64),
+    Size = UDim2.new(1, -28, 0, 32),
+    BackgroundColor3 = COLORS.accent,
     BorderSizePixel = 0,
-}, panel)
-
-round(buttonFrame, 8)
-
-local bypassButton = create("TextButton", {
-    Name = "BypassButton",
-    Position = UDim2.fromOffset(2, 2),
-    Size = UDim2.new(1, -4, 1, -4),
-    BackgroundColor3 = COLORS.button,
-    BorderSizePixel = 0,
-    AutoButtonColor = true,
+    AutoButtonColor = false,
     Font = Enum.Font.GothamBold,
-    Text = "BYPASS",
-    TextSize = 14,
+    Text = "BYPASS V2  ✓",
+    TextSize = 12,
     TextColor3 = COLORS.text,
-}, buttonFrame)
+}, panel)
 
-round(bypassButton, 6)
+round(versionButton, 7)
 
--- Tombol mini untuk membuka panel kembali
+-- Tombol preview
+local executeButton = create("TextButton", {
+    Name = "ExecutePreview",
+    Position = UDim2.fromOffset(14, 105),
+    Size = UDim2.new(1, -28, 0, 36),
+    BackgroundColor3 = COLORS.surface,
+    BorderSizePixel = 0,
+    AutoButtonColor = false,
+    Font = Enum.Font.GothamBold,
+    Text = "EXECUTE V2 PREVIEW",
+    TextSize = 12,
+    TextColor3 = COLORS.text,
+}, panel)
+
+round(executeButton, 7)
+stroke(executeButton, 0.9)
+
+-- Status
+local note = create("TextLabel", {
+    Name = "Status",
+    Position = UDim2.fromOffset(14, 145),
+    Size = UDim2.new(1, -70, 0, 30),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.GothamMedium,
+    Text = "V2 selected - UI preview only",
+    TextSize = 10,
+    TextWrapped = true,
+    TextColor3 = COLORS.subtle,
+    TextXAlignment = Enum.TextXAlignment.Left,
+}, panel)
+
+-- Tombol mikrofon visual
+local micButton = create("TextButton", {
+    Name = "MicPreview",
+    Position = UDim2.new(1, -48, 0, 146),
+    Size = UDim2.fromOffset(34, 30),
+    BackgroundColor3 = COLORS.surface,
+    BorderSizePixel = 0,
+    AutoButtonColor = false,
+    Font = Enum.Font.GothamBold,
+    Text = "MIC",
+    TextSize = 10,
+    TextColor3 = COLORS.text,
+}, panel)
+
+round(micButton, 8)
+
+-- Tombol untuk membuka panel kembali
 local reopenButton = create("TextButton", {
     Name = "ReopenButton",
-    Size = UDim2.fromOffset(46, 46),
-    Position = UDim2.new(0, 18, 0.5, -23),
+    Size = UDim2.fromOffset(48, 48),
+    Position = UDim2.new(0, 18, 0.5, -24),
     BackgroundColor3 = COLORS.panel,
     BorderSizePixel = 0,
     Font = Enum.Font.GothamBold,
     Text = "VCB",
-    TextSize = 13,
+    TextSize = 12,
     TextColor3 = COLORS.text,
     Visible = false,
 }, gui)
 
-round(reopenButton, 10)
+round(reopenButton, 12)
+stroke(reopenButton, 0.65)
 
-create("UIStroke", {
-    Color = COLORS.stroke,
-    Transparency = 0.5,
-    Thickness = 1,
-}, reopenButton)
-
+-- Buka dan tutup
 closeButton.Activated:Connect(function()
     panel.Visible = false
     reopenButton.Visible = true
@@ -150,49 +213,73 @@ reopenButton.Activated:Connect(function()
     reopenButton.Visible = false
 end)
 
--- Feedback tombol demo
-local busy = false
+-- Pilihan V2
+versionButton.Activated:Connect(function()
+    note.Text = "V2 selected - UI preview only"
+    animate(versionButton, {
+        BackgroundColor3 = COLORS.accentHover,
+    })
 
-bypassButton.Activated:Connect(function()
-    if busy then
-        return
-    end
-
-    busy = true
-    bypassButton.Text = "UI TEST OK"
-    bypassButton.BackgroundColor3 = COLORS.buttonHover
-
-    task.delay(1.2, function()
-        if bypassButton.Parent then
-            bypassButton.Text = "BYPASS"
-            bypassButton.BackgroundColor3 = COLORS.button
+    task.delay(0.2, function()
+        if versionButton.Parent then
+            animate(versionButton, {
+                BackgroundColor3 = COLORS.accent,
+            })
         end
-
-        busy = false
     end)
 end)
 
--- Geser panel melalui area judul
-local dragging = false
-local dragStart = nil
-local startPosition = nil
-local activeTouch = nil
+-- Preview UI, bukan bypass voice chat
+local previewActive = false
 
-title.InputBegan:Connect(function(input)
-    local isMouse = input.UserInputType
+executeButton.Activated:Connect(function()
+    previewActive = not previewActive
+
+    if previewActive then
+        executeButton.Text = "V2 PREVIEW ACTIVE"
+        executeButton.BackgroundColor3 = COLORS.green
+        note.Text = "Preview aktif - voice chat tidak diubah"
+    else
+        executeButton.Text = "EXECUTE V2 PREVIEW"
+        executeButton.BackgroundColor3 = COLORS.surface
+        note.Text = "Preview reset - UI only"
+    end
+end)
+
+-- Status mikrofon visual saja
+local micMuted = false
+
+micButton.Activated:Connect(function()
+    micMuted = not micMuted
+
+    if micMuted then
+        micButton.Text = "OFF"
+        micButton.BackgroundColor3 = COLORS.red
+        note.Text = "Mic visual OFF - voice chat tidak diubah"
+    else
+        micButton.Text = "MIC"
+        micButton.BackgroundColor3 = COLORS.surface
+        note.Text = "Mic visual ON - voice chat tidak diubah"
+    end
+end)
+
+-- Geser panel melalui title bar
+local dragging = false
+local dragStart
+local startPosition
+local activeTouch
+
+titleBar.InputBegan:Connect(function(input)
+    local mouse = input.UserInputType
         == Enum.UserInputType.MouseButton1
-    local isTouch = input.UserInputType
+    local touch = input.UserInputType
         == Enum.UserInputType.Touch
 
-    if isMouse or isTouch then
+    if mouse or touch then
         dragging = true
         dragStart = input.Position
         startPosition = panel.Position
-        activeTouch = isTouch and input or nil
-
-        if isMouse then
-            activeTouch = nil
-        end
+        activeTouch = touch and input or nil
     end
 end)
 
@@ -201,12 +288,12 @@ UserInputService.InputChanged:Connect(function(input)
         return
     end
 
-    local isMouseMove = input.UserInputType
+    local mouseMove = input.UserInputType
         == Enum.UserInputType.MouseMovement
-    local isMatchingTouch = activeTouch ~= nil
+    local touchMove = activeTouch ~= nil
         and input == activeTouch
 
-    if not isMouseMove and not isMatchingTouch then
+    if not mouseMove and not touchMove then
         return
     end
 
@@ -228,4 +315,5 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-print("[VCB] Final UI berhasil dibuat")
+print("[VCB] Final UI V2 berhasil dibuat")
+```
