@@ -314,4 +314,4 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-print("[VCB] Final UI V2 berhasil dibuat")
+print("[VCB] Final UI V2 berhasil dibuatkan oleh boril")
